@@ -1,4 +1,4 @@
-use core::sync::atomics::AtomicBool;
+use core::sync::atomic::{AtomicBool, Ordering};
 
 pub struct SysMutex(AtomicBool);
 
@@ -10,14 +10,15 @@ impl SysMutex {
     }
 
     pub unsafe fn lock(&self) {
-        assert_eq!(self.0.replace(true), false, "cannot recursively acquire mutex");
+        let ok = self.0.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed).is_ok();
+        assert!(ok, "cannot recursively acquire mutex");
     }
 
     pub unsafe fn unlock(&self) {
-        self.0.set(false);
+        self.0.store(false, Ordering::Release);
     }
 
     pub unsafe fn try_lock(&self) -> bool {
-        self.0.replace(true) == false
+        self.0.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed).is_ok()
     }
 }
