@@ -2,7 +2,7 @@
 edition = "2021"
 name = "sync-no-std"
 version = "0.1.0"
-rust-version = "1.81"
+#rust-version = "nightly"
 authors = ["warlock <internalmike@gmail.com>"]
 description = "Cross-platform interface to the synchronization primitives."
 readme = "README.md"
