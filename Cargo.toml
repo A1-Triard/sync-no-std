@@ -1,0 +1,28 @@
+[package]
+edition = "2021"
+name = "sync-no-std"
+version = "0.1.0"
+rust-version = "1.81"
+authors = ["warlock <internalmike@gmail.com>"]
+description = "Cross-platform interface to the synchronization primitives."
+readme = "README.md"
+documentation = "https://docs.rs/sync-no-std/"
+keywords = ["pthread", "no_std", "mutex", "windows", "linux"]
+categories = ["os", "no-std"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/A1-Triard/sync-no-std"
+
+[lints.rust]
+unexpected_cfgs = { level = "allow" }
+
+[dependencies]
+panicking = { version = "0.5.0", default-features = false }
+
+[target.'cfg(all(not(target_os="dos"), not(windows)))'.dependencies]
+libc = { version = "0.2.126", default-features = false }
+
+[target.'cfg(all(not(target_os="dos"), windows))'.dependencies]
+winapi = { version = "0.3.9", features = ["synchapi"] }
+
+[badges]
+maintenance = { status = "experimental" }
