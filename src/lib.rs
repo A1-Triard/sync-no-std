@@ -1,4 +1,7 @@
 #![feature(negative_impls)]
+#![feature(never_type)]
+
+#![deny(warnings)]
 
 #![no_std]
 
