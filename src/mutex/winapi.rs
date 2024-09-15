@@ -30,14 +30,14 @@ impl SysMutex {
     }
 
     pub unsafe fn lock(&self) {
-        AcquireSRWLockExclusive(&mut self.0 as *mut _);
+        AcquireSRWLockExclusive(self.0.get());
     }
 
     pub unsafe fn try_lock(&self) -> bool {
-        TryAcquireSRWLockExclusive(&mut self.0 as *mut _) != 0
+        TryAcquireSRWLockExclusive(self.0.get()) != 0
     }
 
     pub unsafe fn unlock(&self) {
-        ReleaseSRWLockExclusive(&mut self.0 as *mut _);
+        ReleaseSRWLockExclusive(self.0.get());
     }
 }
