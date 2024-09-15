@@ -10,14 +10,14 @@ impl SysMutex {
     }
 
     pub unsafe fn lock(&self) {
-        assert_eq!(self.locked.replace(true), false, "cannot recursively acquire mutex");
+        assert_eq!(self.0.replace(true), false, "cannot recursively acquire mutex");
     }
 
     pub unsafe fn unlock(&self) {
-        self.locked.set(false);
+        self.0.set(false);
     }
 
     pub unsafe fn try_lock(&self) -> bool {
-        self.locked.replace(true) == false
+        self.0.replace(true) == false
     }
 }
