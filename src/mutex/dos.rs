@@ -2,6 +2,8 @@ use core::sync::atomics::AtomicBool;
 
 pub struct SysMutex(AtomicBool);
 
+#[allow(clippy::missing_safety_doc)]
+#[allow(clippy::new_without_default)]
 impl SysMutex {
     pub fn new() -> Self {
         SysMutex(AtomicBool::new(false))

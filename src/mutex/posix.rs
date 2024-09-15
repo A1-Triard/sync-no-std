@@ -26,6 +26,8 @@ impl Drop for SysMutex {
     }
 }
 
+#[allow(clippy::missing_safety_doc)]
+#[allow(clippy::new_without_default)]
 impl SysMutex {
     pub fn new() -> Self {
         let mut attr = MaybeUninit::uninit();

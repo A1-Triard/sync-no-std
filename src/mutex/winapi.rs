@@ -22,6 +22,8 @@ unsafe impl Send for SysMutex { }
 
 unsafe impl Sync for SysMutex { }
 
+#[allow(clippy::missing_safety_doc)]
+#[allow(clippy::new_without_default)]
 impl SysMutex {
     pub fn new() -> Self {
         SysMutex(UnsafeCell::new(SRWLOCK_INIT))
