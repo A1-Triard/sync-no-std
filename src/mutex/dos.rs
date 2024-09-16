@@ -10,6 +10,8 @@ impl<A: Allocator + Clone> SysMutex<A> {
         SysMutex(AtomicBool::new(false), allocator)
     }
 
+    pub const fn allocator(&self) -> &A { &self.1 }
+
     pub unsafe fn lock(&self) {
         let ok = self.0.compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed).is_ok();
         assert!(ok, "cannot recursively acquire mutex");

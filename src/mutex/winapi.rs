@@ -30,6 +30,8 @@ impl<A: Allocator + Clone> SysMutex<A> {
         SysMutex(UnsafeCell::new(SRWLOCK_INIT), allocator)
     }
 
+    pub const fn allocator(&self) -> &A { &self.1 }
+
     pub unsafe fn lock(&self) {
         AcquireSRWLockExclusive(self.0.get());
     }

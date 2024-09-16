@@ -43,6 +43,8 @@ impl<T: LazyInit> LazyBox<T> {
         Self { ptr: AtomicPtr::new(null_mut()), allocator, _phantom: PhantomData }
     }
 
+    pub const fn allocator(lb: &LazyBox<T>) -> &T::Allocator { &lb.allocator }
+
     fn get_pointer(&self) -> *mut T {
         let ptr = self.ptr.load(Acquire);
         if ptr.is_null() { self.initialize() } else { ptr }

@@ -66,6 +66,8 @@ impl<A: Allocator + Clone> SysMutex<A> {
         SysMutex(LazyBox::new_in(allocator))
     }
 
+    pub const fn allocator(&self) -> &A { LazyBox::allocator(&self.0) }
+
     pub unsafe fn lock(&self) {
         let r = pthread_mutex_lock(self.0.0.get());
         assert_eq!(r, 0);

@@ -47,6 +47,8 @@ impl<T, A: Allocator + Clone> Mutex<T, A> {
     pub const fn new_in(t: T, allocator: A) -> Mutex<T, A> {
         Mutex { inner: SysMutex::new_in(allocator), poison: poison::Flag::new(), data: UnsafeCell::new(t) }
     }
+
+    pub const fn allocator(&self) -> &A { self.inner.allocator() }
 }
 
 impl<T> Mutex<T> {
