@@ -1,3 +1,5 @@
+use alloc::alloc::Global;
+use core::alloc::Allocator;
 use core::cell::UnsafeCell;
 use core::fmt;
 use core::ops::{Deref, DerefMut};
@@ -13,49 +15,55 @@ mod winapi;
 mod dos;
 
 #[cfg(all(not(target_os="dos"), not(windows)))]
-pub use posix::SysMutex;
+use posix::SysMutex;
 
 #[cfg(all(not(target_os="dos"), windows))]
-pub use winapi::SysMutex;
+use winapi::SysMutex;
 
 #[cfg(target_os="dos")]
-pub use dos::SysMutex;
+use dos::SysMutex;
 
-pub struct Mutex<T: ?Sized> {
-    inner: SysMutex,
+pub struct Mutex<T: ?Sized, A: Allocator + Clone = Global> {
+    inner: SysMutex<A>,
     poison: poison::Flag,
     data: UnsafeCell<T>,
 }
 
-unsafe impl<T: ?Sized + Send> Send for Mutex<T> { }
+unsafe impl<T: ?Sized + Send, A: Allocator + Clone> Send for Mutex<T, A> { }
 
-unsafe impl<T: ?Sized + Send> Sync for Mutex<T> { }
+unsafe impl<T: ?Sized + Send, A: Allocator + Clone> Sync for Mutex<T, A> { }
 
 #[must_use="if unused the Mutex will immediately unlock"]
-pub struct MutexGuard<'a, T: ?Sized + 'a> {
-    lock: &'a Mutex<T>,
+pub struct MutexGuard<'a, T: ?Sized + 'a, A: Allocator + Clone = Global> {
+    lock: &'a Mutex<T, A>,
     poison: poison::Guard,
 }
 
-impl<T: ?Sized> !Send for MutexGuard<'_, T> { }
+impl<T: ?Sized, A: Allocator + Clone> !Send for MutexGuard<'_, T, A> { }
 
-unsafe impl<T: ?Sized + Sync> Sync for MutexGuard<'_, T> { }
+unsafe impl<T: ?Sized + Sync, A: Allocator + Clone> Sync for MutexGuard<'_, T, A> { }
 
-impl<T> Mutex<T> {
-    pub fn new(t: T) -> Mutex<T> {
-        Mutex { inner: SysMutex::new(), poison: poison::Flag::new(), data: UnsafeCell::new(t) }
+impl<T, A: Allocator + Clone> Mutex<T, A> {
+    pub const fn new_in(t: T, allocator: A) -> Mutex<T, A> {
+        Mutex { inner: SysMutex::new_in(allocator), poison: poison::Flag::new(), data: UnsafeCell::new(t) }
     }
 }
 
-impl<T: ?Sized> Mutex<T> {
-    pub fn lock(&self) -> LockResult<MutexGuard<'_, T>> {
+impl<T> Mutex<T> {
+    pub const fn new(t: T) -> Mutex<T> {
+        Mutex::new_in(t, Global)
+    }
+}
+
+impl<T: ?Sized, A: Allocator + Clone> Mutex<T, A> {
+    pub fn lock(&self) -> LockResult<MutexGuard<'_, T, A>> {
         unsafe {
             self.inner.lock();
             MutexGuard::new(self)
         }
     }
 
-    pub fn try_lock(&self) -> TryLockResult<MutexGuard<'_, T>> {
+    pub fn try_lock(&self) -> TryLockResult<MutexGuard<'_, T, A>> {
         unsafe {
             if self.inner.try_lock() {
                 Ok(MutexGuard::new(self)?)
@@ -99,7 +107,7 @@ impl<T: Default> Default for Mutex<T> {
     }
 }
 
-impl<T: ?Sized + fmt::Debug> fmt::Debug for Mutex<T> {
+impl<T: ?Sized + fmt::Debug, A: Allocator + Clone> fmt::Debug for Mutex<T, A> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut d = f.debug_struct("Mutex");
         match self.try_lock() {
@@ -118,13 +126,13 @@ impl<T: ?Sized + fmt::Debug> fmt::Debug for Mutex<T> {
     }
 }
 
-impl<'mutex, T: ?Sized> MutexGuard<'mutex, T> {
-    unsafe fn new(lock: &'mutex Mutex<T>) -> LockResult<MutexGuard<'mutex, T>> {
+impl<'mutex, T: ?Sized, A: Allocator + Clone> MutexGuard<'mutex, T, A> {
+    unsafe fn new(lock: &'mutex Mutex<T, A>) -> LockResult<MutexGuard<'mutex, T, A>> {
         poison::map_result(lock.poison.guard(), |guard| MutexGuard { lock, poison: guard })
     }
 }
 
-impl<T: ?Sized> Deref for MutexGuard<'_, T> {
+impl<T: ?Sized, A: Allocator + Clone> Deref for MutexGuard<'_, T, A> {
     type Target = T;
 
     fn deref(&self) -> &T {
@@ -132,13 +140,13 @@ impl<T: ?Sized> Deref for MutexGuard<'_, T> {
     }
 }
 
-impl<T: ?Sized> DerefMut for MutexGuard<'_, T> {
+impl<T: ?Sized, A: Allocator + Clone> DerefMut for MutexGuard<'_, T, A> {
     fn deref_mut(&mut self) -> &mut T {
         unsafe { &mut *self.lock.data.get() }
     }
 }
 
-impl<T: ?Sized> Drop for MutexGuard<'_, T> {
+impl<T: ?Sized, A: Allocator + Clone> Drop for MutexGuard<'_, T, A> {
     fn drop(&mut self) {
         unsafe {
             self.lock.poison.done(&self.poison);
@@ -147,13 +155,13 @@ impl<T: ?Sized> Drop for MutexGuard<'_, T> {
     }
 }
 
-impl<T: ?Sized + fmt::Debug> fmt::Debug for MutexGuard<'_, T> {
+impl<T: ?Sized + fmt::Debug, A: Allocator + Clone> fmt::Debug for MutexGuard<'_, T, A> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Debug::fmt(&**self, f)
     }
 }
 
-impl<T: ?Sized + fmt::Display> fmt::Display for MutexGuard<'_, T> {
+impl<T: ?Sized + fmt::Display, A: Allocator + Clone> fmt::Display for MutexGuard<'_, T, A> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         (**self).fmt(f)
     }

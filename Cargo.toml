@@ -16,6 +16,7 @@ repository = "https://github.com/A1-Triard/sync-no-std"
 unexpected_cfgs = { level = "allow" }
 
 [dependencies]
+arraybox = "0.1.3"
 panicking = { version = "0.5.0", default-features = false }
 
 [target.'cfg(all(not(target_os="dos"), not(windows)))'.dependencies]

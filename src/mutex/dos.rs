@@ -1,12 +1,13 @@
+use core::alloc::Allocator;
 use core::sync::atomic::{AtomicBool, Ordering};
 
-pub struct SysMutex(AtomicBool);
+pub struct SysMutex<A: Allocator + Clone>(AtomicBool, A);
 
 #[allow(clippy::missing_safety_doc)]
 #[allow(clippy::new_without_default)]
-impl SysMutex {
-    pub fn new() -> Self {
-        SysMutex(AtomicBool::new(false))
+impl<A: Allocator + Clone> SysMutex<A> {
+    pub const fn new_in(allocator: A) -> Self {
+        SysMutex(AtomicBool::new(false), allocator)
     }
 
     pub unsafe fn lock(&self) {

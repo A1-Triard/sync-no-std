@@ -12,21 +12,22 @@
 // 3. While CriticalSection is fair and SRWLock is not, the current Rust policy
 //    is that there are no guarantees of fairness.
 
+use core::alloc::Allocator;
 use core::cell::UnsafeCell;
 use winapi::um::synchapi::{SRWLOCK, SRWLOCK_INIT};
 use winapi::um::synchapi::{AcquireSRWLockExclusive, TryAcquireSRWLockExclusive, ReleaseSRWLockExclusive};
 
-pub struct SysMutex(UnsafeCell<SRWLOCK>);
+pub struct SysMutex<A: Allocator + Clone>(UnsafeCell<SRWLOCK>, A);
 
-unsafe impl Send for SysMutex { }
+unsafe impl<A: Allocator + Clone> Send for SysMutex<A> { }
 
-unsafe impl Sync for SysMutex { }
+unsafe impl<A: Allocator + Clone> Sync for SysMutex<A> { }
 
 #[allow(clippy::missing_safety_doc)]
 #[allow(clippy::new_without_default)]
-impl SysMutex {
-    pub fn new() -> Self {
-        SysMutex(UnsafeCell::new(SRWLOCK_INIT))
+impl<A: Allocator + Clone> SysMutex<A> {
+    pub const fn new_in(allocator: A) -> Self {
+        SysMutex(UnsafeCell::new(SRWLOCK_INIT), allocator)
     }
 
     pub unsafe fn lock(&self) {
