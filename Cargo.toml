@@ -1,7 +1,7 @@
 [package]
 edition = "2021"
 name = "sync-no-std"
-version = "0.1.0"
+version = "0.1.1"
 #rust-version = "nightly"
 authors = ["warlock <internalmike@gmail.com>"]
 description = "Cross-platform interface to the synchronization primitives."
