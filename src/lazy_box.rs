@@ -37,8 +37,8 @@ pub trait LazyInit {
     fn destroy(_: Box<Self, Self::Allocator>) { }
 }
 
+#[allow(dead_code)]
 impl<T: LazyInit> LazyBox<T> {
-    #[allow(dead_code)]
     pub const fn new_in(allocator: T::Allocator) -> Self {
         Self { ptr: AtomicPtr::new(null_mut()), allocator, _phantom: PhantomData }
     }
