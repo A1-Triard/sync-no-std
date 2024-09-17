@@ -49,7 +49,7 @@ jobs:
         override: true
     - run: "rustup component add rust-src --toolchain nightly-${{ matrix.triple }}"
     - uses: actions/checkout@v2
-    - run: "cargo +nightly build --verbose -Z build-std=core,panic_abort --target ${{ matrix.triple }} --release"
+    - run: "cargo +nightly build --verbose -Z build-std=alloc,core,panic_abort --target ${{ matrix.triple }} --release"
       working-directory: ensure_no_std
     - run: "./ensure_no_std/target/${{ matrix.triple }}/release/ensure_no_std"
   dos:
@@ -70,7 +70,7 @@ jobs:
     - run: "rustup component add clippy"
     - run: "rustup component add rust-src --toolchain nightly-${{ matrix.tool }}"
     - uses: actions/checkout@v2
-    - run: "cargo +nightly build --verbose --target=i386-pc-dos-msvc.json -Z build-std=core,panic_abort"
-    - run: "cargo +nightly doc --verbose --target=i386-pc-dos-msvc.json -Z build-std=core,panic_abort"
-    - run: "cargo +nightly build --verbose --release --target=i386-pc-dos-msvc.json -Z build-std=core,panic_abort"
-    - run: "cargo +nightly clippy --verbose --target=i386-pc-dos-msvc.json -Z build-std=core,panic_abort"
+    - run: "cargo +nightly build --verbose --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"
+    - run: "cargo +nightly doc --verbose --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"
+    - run: "cargo +nightly build --verbose --release --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"
+    - run: "cargo +nightly clippy --verbose --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"

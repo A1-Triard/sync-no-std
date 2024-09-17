@@ -4,6 +4,9 @@
 
 #![no_std]
 
+extern crate alloc;
+
+use composable_allocators::{AsGlobal, System};
 use core::panic::PanicInfo;
 use panic_no_std::panic;
 
@@ -18,6 +21,9 @@ fn panic_handler(info: &PanicInfo) -> ! {
 
 #[no_mangle]
 fn rust_eh_personality() { }
+
+#[global_allocator]
+static ALLOCATOR: AsGlobal<System> = AsGlobal(System);
 
 use sync_no_std::mutex::Mutex;
 
