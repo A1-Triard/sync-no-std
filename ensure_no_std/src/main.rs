@@ -20,7 +20,7 @@ fn panic_handler(info: &PanicInfo) -> ! {
 }
 
 #[no_mangle]
-fn rust_eh_personality() { }
+extern "C" fn rust_eh_personality() { }
 
 #[global_allocator]
 static ALLOCATOR: AsGlobal<System> = AsGlobal(System);
