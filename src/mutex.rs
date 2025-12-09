@@ -5,22 +5,22 @@ use core::fmt;
 use core::ops::{Deref, DerefMut};
 use crate::poison::{self, LockResult, TryLockError, TryLockResult};
 
-#[cfg(all(not(target_os="dos"), not(windows)))]
+#[cfg(all(not(dos), not(windows)))]
 mod posix;
 
-#[cfg(all(not(target_os="dos"), windows))]
+#[cfg(all(not(dos), windows))]
 mod winapi;
 
-#[cfg(target_os="dos")]
+#[cfg(dos)]
 mod dos;
 
-#[cfg(all(not(target_os="dos"), not(windows)))]
+#[cfg(all(not(dos), not(windows)))]
 use posix::SysMutex;
 
-#[cfg(all(not(target_os="dos"), windows))]
+#[cfg(all(not(dos), windows))]
 use winapi::SysMutex;
 
-#[cfg(target_os="dos")]
+#[cfg(dos)]
 use dos::SysMutex;
 
 pub struct Mutex<T: ?Sized, A: Allocator + Clone = Global> {

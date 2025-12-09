@@ -51,7 +51,7 @@ impl<T: LazyInit> LazyBox<T> {
     }
 
     fn initialize(&self) -> *mut T {
-        let new_ptr = Box::into_raw(T::init(self.allocator.clone()));
+        let new_ptr = Box::into_raw_with_allocator(T::init(self.allocator.clone())).0;
         match self.ptr.compare_exchange(null_mut(), new_ptr, AcqRel, Acquire) {
             Ok(_) => new_ptr,
             Err(ptr) => {
