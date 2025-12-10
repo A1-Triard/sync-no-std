@@ -69,7 +69,7 @@ jobs:
     - run: "rustup component add clippy"
     - run: "rustup component add rust-src --toolchain nightly-${{ matrix.tool }}"
     - uses: actions/checkout@v2
-    - run: "cargo +nightly build --verbose --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"
-    - run: "cargo +nightly doc --verbose --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"
-    - run: "cargo +nightly build --verbose --release --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"
-    - run: "cargo +nightly clippy --verbose --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"
+    - run: "RUSTFLAGS=\"--cfg dos -C panic=abort\" cargo +nightly build --verbose --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"
+    - run: "RUSTFLAGS=\"--cfg dos -C panic=abort\" RUSTDOCFLAGS=\"--cfg dos -C panic=abort\" cargo +nightly doc --verbose --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"
+    - run: "RUSTFLAGS=\"--cfg dos -C panic=abort\" cargo +nightly build --verbose --release --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"
+    - run: "RUSTFLAGS=\"--cfg dos -C panic=abort\" cargo +nightly clippy --verbose --target=i386-pc-dos-msvc.json -Z build-std=alloc,core,panic_abort"
