@@ -1,8 +1,7 @@
-#![feature(start)]
-
 #![deny(warnings)]
 
 #![no_std]
+#![no_main]
 
 extern crate alloc;
 
@@ -12,23 +11,24 @@ use panic_no_std::panic;
 
 #[cfg(windows)]
 #[link(name="msvcrt")]
-extern { }
+extern "C" { }
 
 #[panic_handler]
 fn panic_handler(info: &PanicInfo) -> ! {
     panic(info, 99)
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 extern "C" fn rust_eh_personality() { }
 
 #[global_allocator]
 static ALLOCATOR: AsGlobal<System> = AsGlobal(System);
 
+use core::ffi::{c_char, c_int};
 use sync_no_std::mutex::Mutex;
 
-#[start]
-pub fn main(_argc: isize, _argv: *const *const u8) -> isize {
+#[unsafe(no_mangle)]
+extern "C" fn main(_argc: c_int, _argv: *mut *mut c_char) -> c_int {
     let mutex = Mutex::new(0_i32);
     {
         let mut lock = mutex.lock().unwrap();

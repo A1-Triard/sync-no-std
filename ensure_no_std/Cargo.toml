@@ -11,7 +11,6 @@ panic = "abort"
 panic = "abort"
 
 [dependencies]
-composable-allocators = "0.3.0"
-panic-no-std = "0.1.0"
-panicking = { version = "0.5.0", default-features = false, features = ["abort"] }
+composable-allocators = "0.3.5"
+panic-no-std = "0.2.0"
 sync-no-std = { path = ".." }

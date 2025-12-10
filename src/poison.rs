@@ -29,10 +29,12 @@ impl Flag {
         }
     }
 
+    #[allow(unreachable_code)]
     pub fn borrow(&self) -> LockResult<()> {
         if self.get() { Err(PoisonError::new(())) } else { Ok(()) }
     }
 
+    #[allow(unreachable_code)]
     pub fn guard(&self) -> LockResult<Guard> {
         let ret = Guard {
             #[cfg(panic="unwind")]
